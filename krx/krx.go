@@ -30,18 +30,25 @@ type httpClient interface {
 	Do(req *http.Request) (*http.Response, error)
 }
 
-type New struct {
-	Client httpClient
+type Krx struct {
+	client httpClient
 }
 
-func (krx *New) GetStockInfo() []Stock {
+func New(httpClient httpClient) *Krx {
+	return &Krx{
+		client: httpClient,
+	}
+}
+
+func (krx *Krx) GetStockInfo() []Stock {
 	/*
 		영업일 구하기
 	*/
-	day, err := krx.getBusinessDay()
+	day, err := krx.GetBusinessDay()
 
 	if err != nil {
 		fmt.Println(err)
+		return nil
 	}
 
 	otp, _ := krx.getStockOtp(day)
@@ -74,7 +81,7 @@ func (krx *New) GetStockInfo() []Stock {
 	return collected_stock_prices
 }
 
-func (krx *New) getBusinessDay() (string, error) {
+func (krx *Krx) GetBusinessDay() (string, error) {
 	loc, err := time.LoadLocation("Asia/Seoul")
 	if err != nil {
 		fmt.Println("시간대를 로드하는 데 문제가 발생했습니다:", err)
@@ -93,9 +100,14 @@ func (krx *New) getBusinessDay() (string, error) {
 		return "", err
 	}
 
-	data, _ := krx.requestKrx(otp)
+	data, err := krx.requestKrx(otp)
 
-	day := data[1][0]
+	if err != nil {
+		fmt.Println(err)
+		return "", err
+	}
+
+	day := data[0][0]
 
 	day = strings.ReplaceAll(day, "/", "")
 	return day, nil
@@ -107,7 +119,7 @@ func getDateBeforeSevenDay(now time.Time) time.Time {
 	return preDay
 }
 
-func (krx *New) getIndexOtp(start string, end string) (string, error) {
+func (krx *Krx) getIndexOtp(start string, end string) (string, error) {
 	otpForm := url.Values{
 		"locale":                        {"ko_KR"},
 		"tboxindIdx_finder_equidx0_8":   {"코스피"},
@@ -134,7 +146,7 @@ func (krx *New) getIndexOtp(start string, end string) (string, error) {
 
 	req.Header = generateHeader()
 
-	resp, err := krx.Client.Do(req)
+	resp, err := krx.client.Do(req)
 	if err != nil {
 		fmt.Println("HTTP 요청 실행 오류:", err)
 		return "", err
@@ -149,7 +161,7 @@ func (krx *New) getIndexOtp(start string, end string) (string, error) {
 	return string(body), nil
 }
 
-func (krx *New) requestKrx(otp string) ([][]string, error) {
+func (krx *Krx) requestKrx(otp string) ([][]string, error) {
 	csvForm := url.Values{
 		"code": {otp},
 	}
@@ -164,7 +176,7 @@ func (krx *New) requestKrx(otp string) ([][]string, error) {
 
 	req.Header = generateHeader()
 
-	resp, err := krx.Client.Do(req)
+	resp, err := krx.client.Do(req)
 	if err != nil {
 		fmt.Println("HTTP 요청 실행 오류:", err)
 		return nil, err
@@ -187,10 +199,12 @@ func (krx *New) requestKrx(otp string) ([][]string, error) {
 
 	reader := csv.NewReader(bytes.NewReader(utf8))
 	records, _ := reader.ReadAll()
+	// remove csv header
+	records = records[1:][:]
 	return records, nil
 }
 
-func (krx *New) getStockOtp(date string) (string, error) {
+func (krx *Krx) getStockOtp(date string) (string, error) {
 	otpForm := url.Values{
 		"locale":      {"ko_KR"},
 		"mktId":       {"STK"},
@@ -212,7 +226,7 @@ func (krx *New) getStockOtp(date string) (string, error) {
 
 	req.Header = generateHeader()
 
-	resp, err := krx.Client.Do(req)
+	resp, err := krx.client.Do(req)
 	if err != nil {
 		fmt.Println("HTTP 요청 실행 오류:", err)
 		return "", err

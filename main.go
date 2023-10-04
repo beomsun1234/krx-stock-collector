@@ -12,15 +12,14 @@ import (
 
 func main() {
 
-	krx := krx.New{
-		Client: &http.Client{},
-	}
+	krx := krx.New(&http.Client{})
 
 	for {
-		fmt.Println("------------start-----------------------------------")
+		b, _ := krx.GetBusinessDay()
+		fmt.Printf("------------start : %s---------------------------------------------------------------\n", b)
 		collected_stock_prices := krx.GetStockInfo()
 		fmt.Println(collected_stock_prices)
-		fmt.Println("------------end-------------------------------------")
+		fmt.Println("------------end----------------------------------------------------------------------------")
 		time.Sleep(time.Duration(rand.Intn(5)) * time.Second)
 	}
 }
