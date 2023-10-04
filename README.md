@@ -4,9 +4,10 @@
 
     go get github.com/beomsun1234/krx-stock-collector/krx
 
+    krx := krx.New(&http.Client{})
 
-    krx := krx.New{
-		Client: &http.Client{},
-	}
-
-    krx.GetStockInfo()
+    // 전종목 시세 조회
+    krx.GetStockInfo() 
+    
+    // 현재기준 최근영업일
+    krx.GetBusinessDay()
