@@ -13,13 +13,12 @@ import (
 func main() {
 
 	krx := krx.New(&http.Client{})
-
+	rand.Seed(time.Now().UnixNano())
 	for {
-		b, _ := krx.GetBusinessDay()
-		fmt.Printf("------------start : %s---------------------------------------------------------------\n", b)
+		fmt.Println("------------start------------------------------------------------------------------------")
 		collected_stock_prices := krx.GetStockInfo()
 		fmt.Println(collected_stock_prices)
 		fmt.Println("------------end----------------------------------------------------------------------------")
-		time.Sleep(time.Duration(rand.Intn(5)) * time.Second)
+		time.Sleep(time.Duration(rand.Intn(5-2)+1) * time.Second)
 	}
 }
