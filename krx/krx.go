@@ -5,7 +5,6 @@ import (
 	"encoding/csv"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"net/url"
 	"strings"
@@ -20,15 +19,17 @@ var otpUrl = "http://data.krx.co.kr/comm/fileDn/GenerateOTP/generate.cmd"
 var csvUrl = "http://data.krx.co.kr/comm/fileDn/download_csv/download.cmd"
 
 type Stock struct {
-	Code           string `json:"stockCode"`
-	Name           string `json:"stockName"`
-	Close          string `json:"stockClose"`
-	Open           string `json:"stockPrice"`
-	Volume         string `json:"stockVolume"`
-	Highest_Price  string `json:"stockHighestPrice"`
-	Lowest_Price   string `json:"stockLowestPrice"`
-	Prdy_Vrss_Sign string `json:"stockPrdyVrssSign"`
-	ChagesRatio    string `json:"stockChagesRatio"`
+	Code             string `json:"code"`
+	Name             string `json:"name"`
+	OpenPrice        string `json:"openPirce"`
+	HighestPrice     string `json:"highestPrice"`
+	LowestPrice      string `json:"lowestPrice"`
+	ClosePrice       string `json:"closePrice"`
+	Volume           string `json:"volume"`
+	FluctuationRange string `json:"fluctuationRange"`
+	FluctuationRate  string `json:"fluctuationRate"`
+	TradingValue     string `json:"tradingValue"`
+	MarketCap        string `json:"marketCap"`
 }
 type HttpClient interface {
 	Do(req *http.Request) (*http.Response, error)
@@ -51,7 +52,7 @@ func (krx *Krx) GetStockInfo() []Stock {
 	day, err := krx.GetBusinessDay()
 
 	if err != nil {
-		log.Fatalln(err)
+		fmt.Println(err)
 		return nil
 	}
 
@@ -59,10 +60,13 @@ func (krx *Krx) GetStockInfo() []Stock {
 
 	krxData, err := krx.getCsv(otp)
 	if err != nil {
-		log.Fatalln(err)
+		fmt.Println(err)
 		return nil
 	}
 
+	if !checkColumnSize(len(krxData[0])) {
+		return nil
+	}
 	return krx.convertCSVToStocks(krxData)
 }
 
@@ -102,19 +106,25 @@ func (krx *Krx) convertCSVToStocks(krxData [][]string) []Stock {
 	return collected_stock_prices
 }
 
+func checkColumnSize(size int) bool {
+	return size >= 12
+}
+
 func convertCSVToStock(krxData []string, sg *sync.WaitGroup, chanStock chan Stock) {
 	defer sg.Done()
 
 	stock := Stock{
-		Code:           krxData[0],
-		Name:           krxData[1],
-		Close:          krxData[2],
-		Prdy_Vrss_Sign: krxData[3],
-		ChagesRatio:    krxData[4],
-		Open:           krxData[5],
-		Highest_Price:  krxData[6],
-		Lowest_Price:   krxData[7],
-		Volume:         krxData[8],
+		Code:             krxData[0],
+		Name:             krxData[1],
+		ClosePrice:       krxData[2],
+		FluctuationRange: krxData[3],
+		FluctuationRate:  krxData[4],
+		OpenPrice:        krxData[5],
+		HighestPrice:     krxData[6],
+		LowestPrice:      krxData[7],
+		Volume:           krxData[8],
+		TradingValue:     krxData[9],
+		MarketCap:        krxData[10],
 	}
 	chanStock <- stock
 }
