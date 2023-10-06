@@ -16,7 +16,7 @@ func main() {
 	rand.Seed(time.Now().UnixNano())
 	for {
 		fmt.Println("------------start------------------------------------------------------------------------")
-		collected_stock_prices := krx.GetStockInfo()
+		collected_stock_prices := krx.GetDailyMarketPrice()
 		fmt.Println(collected_stock_prices)
 		fmt.Println("------------end----------------------------------------------------------------------------")
 		time.Sleep(time.Duration(rand.Intn(5-2)+1) * time.Second)

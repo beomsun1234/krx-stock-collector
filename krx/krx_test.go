@@ -49,7 +49,7 @@ func Test_GetStockInfo(t *testing.T) {
 	t.Run("GetStcokPrice test", func(t *testing.T) {
 		krx := krx.New(&MockHTTPClient{})
 
-		result := krx.GetStockInfo()
+		result := krx.GetDailyMarketPrice()
 
 		assert.Equal(t, 2, len(result))
 	})
@@ -59,7 +59,7 @@ func Test_GetStockInfo2(t *testing.T) {
 	t.Run("failed to get BusinessDay", func(t *testing.T) {
 		krx := krx.New(&MockErrorClient{})
 
-		result := krx.GetStockInfo()
+		result := krx.GetDailyMarketPrice()
 
 		assert.Equal(t, 0, len(result))
 		assert.Nil(t, result)
@@ -70,7 +70,7 @@ func Test_GetStockInfo3(t *testing.T) {
 	t.Run("csv Column < 12 -> nil ", func(t *testing.T) {
 		krx := krx.New(&MockHTTPClient2{})
 
-		result := krx.GetStockInfo()
+		result := krx.GetDailyMarketPrice()
 
 		assert.Equal(t, 0, len(result))
 		assert.Nil(t, result)

@@ -21,7 +21,7 @@ var csvUrl = "http://data.krx.co.kr/comm/fileDn/download_csv/download.cmd"
 type Stock struct {
 	Ticker           string `json:"ticker"`
 	Name             string `json:"name"`
-	OpenPrice        string `json:"openPirce"`
+	OpenPrice        string `json:"openPrice"`
 	HighestPrice     string `json:"highestPrice"`
 	LowestPrice      string `json:"lowestPrice"`
 	ClosePrice       string `json:"closePrice"`
@@ -45,7 +45,7 @@ func New(httpClient HttpClient) *Krx {
 	}
 }
 
-func (krx *Krx) GetStockInfo() []Stock {
+func (krx *Krx) GetDailyMarketPrice() []Stock {
 	/*
 		가장 최근 영업일 구하기
 	*/
