@@ -19,7 +19,7 @@ var otpUrl = "http://data.krx.co.kr/comm/fileDn/GenerateOTP/generate.cmd"
 var csvUrl = "http://data.krx.co.kr/comm/fileDn/download_csv/download.cmd"
 
 type Stock struct {
-	Code             string `json:"code"`
+	Ticker           string `json:"ticker"`
 	Name             string `json:"name"`
 	OpenPrice        string `json:"openPirce"`
 	HighestPrice     string `json:"highestPrice"`
@@ -114,7 +114,7 @@ func convertCSVToStock(krxData []string, sg *sync.WaitGroup, chanStock chan Stoc
 	defer sg.Done()
 
 	stock := Stock{
-		Code:             krxData[0],
+		Ticker:           krxData[0],
 		Name:             krxData[1],
 		ClosePrice:       krxData[2],
 		FluctuationRange: krxData[3],
