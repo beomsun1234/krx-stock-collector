@@ -7,7 +7,8 @@
     krx := krx.New(&http.Client{})
 
     // 전종목 시세 조회
-    krx.GetStockInfo() 
+    krx.GetDailyMarketPrice() 
     
     // 현재기준 최근영업일
     krx.GetBusinessDay()
+
