@@ -45,6 +45,9 @@ func New(httpClient HttpClient) *Krx {
 	}
 }
 
+/*
+시세 조회
+*/
 func (krx *Krx) GetDailyMarketPrice() []Stock {
 	/*
 		가장 최근 영업일 구하기
@@ -129,6 +132,9 @@ func convertCSVToStock(krxData []string, sg *sync.WaitGroup, chanStock chan Stoc
 	chanStock <- stock
 }
 
+/*
+현재기준 가장 최근영업일 조회
+*/
 func (krx *Krx) GetBusinessDay() (string, error) {
 	nowDate, err := getNowInKorea()
 	if err != nil {
