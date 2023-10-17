@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -71,6 +72,40 @@ func (krx *Krx) GetDailyMarketPrice() []Stock {
 		return nil
 	}
 	return krx.convertCSVToStocks(krxData)
+}
+
+/*
+시세 조회 by date
+*/
+func (krx *Krx) GetMarketPriceByDate(day string) []Stock {
+	if !isValidDateYYYYMMDD(day) {
+		return nil
+	}
+
+	otp, _ := krx.getStockOtp(day)
+
+	krxData, err := krx.getCsv(otp)
+	if err != nil {
+		fmt.Println(err)
+		return nil
+	}
+
+	if !checkColumnSize(len(krxData[0])) {
+		return nil
+	}
+	return krx.convertCSVToStocks(krxData)
+}
+
+func isValidDateYYYYMMDD(input string) bool {
+	datePattern := `^\d{4}(0[1-9]|1[0-2])(0[1-9]|[12][0-9]|3[01])$`
+
+	if matched, _ := regexp.MatchString(datePattern, input); !matched {
+		return false
+	}
+
+	_, err := time.Parse("20060102", input)
+
+	return err == nil
 }
 
 func (krx *Krx) getStockOtp(date string) (string, error) {
