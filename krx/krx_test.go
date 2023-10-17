@@ -45,7 +45,7 @@ func (c *MockErrorClient) Do(req *http.Request) (*http.Response, error) {
 	return nil, errors.New("error")
 }
 
-func Test_GetStockInfo(t *testing.T) {
+func Test_GetDailyMarketPrice(t *testing.T) {
 	t.Run("GetStcokPrice test", func(t *testing.T) {
 		krx := krx.New(&MockHTTPClient{})
 
@@ -55,7 +55,7 @@ func Test_GetStockInfo(t *testing.T) {
 	})
 }
 
-func Test_GetStockInfo2(t *testing.T) {
+func Test_GetDailyMarketPrice2(t *testing.T) {
 	t.Run("failed to get BusinessDay", func(t *testing.T) {
 		krx := krx.New(&MockErrorClient{})
 
@@ -66,7 +66,7 @@ func Test_GetStockInfo2(t *testing.T) {
 	})
 }
 
-func Test_GetStockInfo3(t *testing.T) {
+func Test_GetDailyMarketPrice3(t *testing.T) {
 	t.Run("csv Column < 12 -> nil ", func(t *testing.T) {
 		krx := krx.New(&MockHTTPClient2{})
 
@@ -85,5 +85,37 @@ func Test_GetBusinessDay(t *testing.T) {
 
 		assert.Equal(t, "20230902", day)
 		assert.Nil(t, err)
+	})
+}
+func Test_GetMarketPriceByDate1(t *testing.T) {
+	t.Run("GetMarketPriceByDate test", func(t *testing.T) {
+		krx := krx.New(&MockHTTPClient{})
+
+		day := "20230901"
+		result := krx.GetMarketPriceByDate(day)
+
+		assert.Equal(t, 2, len(result))
+	})
+}
+
+func Test_GetMarketPriceByDate2(t *testing.T) {
+	t.Run("failed to GetMarketPriceByDate -> mismatch day", func(t *testing.T) {
+		krx := krx.New(&MockHTTPClient{})
+
+		day := "2023090"
+		result := krx.GetMarketPriceByDate(day)
+
+		assert.Nil(t, result)
+	})
+}
+
+func Test_GetMarketPriceByDate3(t *testing.T) {
+	t.Run("failed to GetMarketPriceByDate -> mismatch day", func(t *testing.T) {
+		krx := krx.New(&MockHTTPClient{})
+
+		day := "day"
+		result := krx.GetMarketPriceByDate(day)
+
+		assert.Nil(t, result)
 	})
 }
