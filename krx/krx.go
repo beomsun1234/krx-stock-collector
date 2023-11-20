@@ -11,7 +11,8 @@ import (
 	"strings"
 	"sync"
 	"time"
-
+	"errors"
+	
 	"golang.org/x/text/encoding/korean"
 	"golang.org/x/text/transform"
 )
