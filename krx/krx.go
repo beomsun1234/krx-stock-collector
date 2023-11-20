@@ -304,6 +304,10 @@ func (krx *Krx) getCsv(otp string) ([][]string, error) {
 
 	reader := csv.NewReader(bytes.NewReader(utf8))
 	records, _ := reader.ReadAll()
+	if len(records) == 0 {
+		err = errors.New("csv read error")
+		return nil, err
+	}
 	// remove csv header
 	records = records[1:][:]
 	return records, nil
