@@ -11,8 +11,7 @@ import (
 	"strings"
 	"sync"
 	"time"
-	"errors"
-	
+
 	"golang.org/x/text/encoding/korean"
 	"golang.org/x/text/transform"
 )
@@ -304,13 +303,22 @@ func (krx *Krx) getCsv(otp string) ([][]string, error) {
 	}
 
 	reader := csv.NewReader(bytes.NewReader(utf8))
-	records, _ := reader.ReadAll()
-	if len(records) == 0 {
-		err = errors.New("csv read error")
-		return nil, err
+	// CSV 파싱 설정 개선
+	reader.LazyQuotes = true
+	reader.FieldsPerRecord = -1 // 필드 수 제한 해제
+
+	records, err := reader.ReadAll()
+	if err != nil {
+		return nil, fmt.Errorf("CSV 파싱 오류: %v", err)
 	}
-	// remove csv header
-	records = records[1:][:]
+
+	// CSV 데이터가 비어있거나 헤더만 있는 경우 안전하게 처리
+	if len(records) <= 1 {
+		return [][]string{}, nil
+	}
+
+	// remove csv header (안전한 슬라이싱)
+	records = records[1:]
 	return records, nil
 }
 
